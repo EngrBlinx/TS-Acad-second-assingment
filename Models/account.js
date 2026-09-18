@@ -5,9 +5,14 @@ const accountSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+        bankName: {
+            type: String,
+        },
+        bankCode: {
+            type: Number
+        },
         balance: {
             type: Number,
-            required: true
         },
         status: {
             type: String,

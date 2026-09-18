@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const kycSchema = new mongoose.Schema({
-        nin: {
+        kycType: {
+            type: String,
+            enum: [ 'nin', 'bvn'],
+            required: true
+        },
+        kycID: {
             type: Number,
             required: true
         },
