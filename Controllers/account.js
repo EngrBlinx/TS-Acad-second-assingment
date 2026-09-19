@@ -15,7 +15,7 @@ exports.createAccount = async (req, res) => {
         const { bankName, bankCode } = req.user;
 
         //generate account number
-        const accountNumber = generateNUBAN(bankCode);
+        const accountNumber = await generateNUBAN(bankCode);
 
         //Create the account
         const account = await Account.create({
