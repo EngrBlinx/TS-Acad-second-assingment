@@ -1,5 +1,6 @@
 const Account = require('../Models/account');
 const axios = require('axios');
+const KYC = require('../Models/kyc');
 
 
 exports.createAccount = async (req, res) => {
@@ -26,7 +27,7 @@ exports.createAccount = async (req, res) => {
         // call the external provider and WAIT for the created account details
         const response = await axios.request(config);
 
-        const { accountNumber, bankCode, bankName } = response.data;
+        const { accountNumber, fintech: {bankCode}, fintech: {bankName} } = response.data;
 
         if (!accountNumber) {
             return res.status(502).json({ message: 'Provider did not return an account number' });
@@ -61,5 +62,37 @@ exports.createAccount = async (req, res) => {
 
         console.error(error);
         return res.status(500).json({ message: 'Error creating account', error: error.message });
+    }
+};
+
+exports.nameEnquiry = async (req, res) => {
+    try{
+        // grab the account number
+        const { accountNumber } = req.params;
+
+        if(!accountNumber)
+            return res.status(400).json({message: 'Please provide the account number'});
+
+        //Assuming the KYC ID is save in the accounts collection
+        const account = await Account.findOne({ accountNumber });
+
+        if(!account)
+            return res.status(404).json({ message: 'Account not found' });
+
+        const identity = await KYC.findOne({ kycID: account.kycID });
+
+        if(!identity)
+            return res.status(404).json({ message: 'Identity not found'});
+
+        const { firstname, lastname } = identity;
+
+        const fullname = `${firstname} ${lastname}`;
+
+        return res.status(200).json({ fullname });
+
+        
+    }catch(error){
+        console.error(error);
+        return res.status(500).json({ message: 'Error resolving name' });
     }
 };
