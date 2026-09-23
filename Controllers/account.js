@@ -24,9 +24,14 @@ exports.createAccount = async (req, res) => {
             data: requestData
         };
 
-        // call the external provider and WAIT for the created account details
+        // call the external provider(NIBSS) and WAIT for the created account details
         const response = await axios.request(config);
 
+    // +-----------------------------------------------------------------------------------------------+
+    // |  What I understand is that, at this point, before NIBSS even sends their response, they must  |
+    // |  have added the now-generated account nmber, bankName, and bankCode to the KYC document,      |
+    // |  which will later be used for inter-bank name enquiry during inter-bank transfers.            |
+    // +-----------------------------------------------------------------------------------------------+
         const { accountNumber, fintech: {bankCode}, fintech: {bankName} } = response.data;
 
         if (!accountNumber) {
