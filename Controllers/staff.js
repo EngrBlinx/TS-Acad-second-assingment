@@ -1,6 +1,5 @@
 const Staff = require('../Models/staff');
 const bcrypt = require('bcryptjs');
-const { json } = require('express');
 const jwt = require('jsonwebtoken');
 
 exports.createStaff = async (req, res) => {
@@ -8,11 +7,11 @@ exports.createStaff = async (req, res) => {
         const { firstname, lastname, email, password, role } = req.body;
 
         //check for missing field
-        if( !firstname || !lastname || !email || !role ) 
+        if( !firstname || !lastname || !email || !password || !role ) 
             return res.status(400).json({ message: "Please complete all required fields" });
 
         //Check for existing user
-        const existingStaff = Staff.findOne({ email });
+        const existingStaff = await Staff.findOne({ email });
         if(existingStaff)
             return res.status(400).json({message: "Staff already Onboarded"});
 
@@ -56,7 +55,7 @@ exports.staffLogin = async (req, res) =>{
             return res.status(401).json({ message: "Your email and password did not match"});
 
         //generate a token
-        const token = jwt.sign({
+        const token = await jwt.sign({
                 id: existingStaff._id,
                 firstname: existingStaff.firstname,
                 lastname: existingStaff.lastname,
