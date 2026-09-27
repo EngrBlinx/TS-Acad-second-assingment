@@ -47,7 +47,7 @@ exports.staffLogin = async (req, res) =>{
         // check if staff if user exists
         const existingStaff = await Staff.findOne({ email });
         if(!existingStaff)
-            return res.status(404).json({ message: "Staff not fond" });
+            return res.status(404).json({ message: "Email and password did not match" });
 
         //Check if password is correct
         const isPasswordValid = await bcrypt.compare(password, existingStaff.password);
@@ -68,7 +68,7 @@ exports.staffLogin = async (req, res) =>{
             process.env.API_SECRET,
             { expiresIn: '1h' }
         );
-        return res.status(201).json({token});
+        return res.status(201).json({ token });
     }catch(error){
         console.error(error);
         return res.status(500).json({ message: 'Error logging in', error: error.message });

@@ -10,6 +10,7 @@ exports.protect = async (req, res, next) => {
     try{
         const decoded = await jwt.verify(token, process.env.API_KEY, process.env.API_SECRET);
         req.user = decoded;
+        next();
     }catch (error){
         return res.status(401).json({ message: 'Not authorized', error: error.message });
     }
