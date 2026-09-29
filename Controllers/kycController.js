@@ -31,18 +31,14 @@ exports.onboardBvn = async (req, res) => {
         //Call NIBSS
         const response = await axios.request(config);
 
-        //Get the BVN from NIBSS reasponse data
-        // This line is funny, because the bvn is not supposed to be part of the input data.
-        //The input data should only be other identity info like FN, LN, DOB, the the upstream server
-        // returns an auto-generated bvn in the response data
 
         //save on local DB
         const identity = await Kyc.create({
             kycType: 'bvn',
-            kycID: response.data.bvn ?? bvn,
-            firstname: response.data.firstName ?? firstName,
-            lastname: response.data.lastName ?? lastName,
-            dob: response.data.dob ?? dob
+            kycID: response.data.bvn,
+            firstname: response.data.firstName,
+            lastname: response.data.lastName,
+            dob: response.data.dob
         });
         return res.status(201).json({ message: 'BVN created successfully', identity });
 
@@ -88,18 +84,13 @@ exports.onboardNin = async (req, res) => {
         //Call NIBSS
         const response = await axios.request(config);
 
-        //Get the NIN from NIBSS reasponse data
-        // This line is funny, because the NIN is not supposed to be part of the input data.
-        //The input data should only be other identity info like FN, LN, DOB, the the upstream server
-        // returns an auto-generated NIN in the response data
-
         //save on the local DB
         const identity = await Kyc.create({
             kycType: 'nin',
-            kycID: response.data.nin ?? nin,
-            firstname: response.data.firstName ?? firstName,
-            lastname: response.data.lastName ?? lastName,
-            dob: response.data.dob ?? dob
+            kycID: response.data.nin,
+            firstname: response.data.firstName,
+            lastname: response.data.lastName,
+            dob: response.data.dob
         });
         return res.status(201).json({ message: 'NIN created successfully', identity });
 
@@ -118,19 +109,48 @@ exports.onboardNin = async (req, res) => {
 };
 
 //Valiadate NIN
-exports.validateKyc = async (req, res) => {
+exports.validateNin = async (req, res) => {
     try{
         //Grab the NIN from the request body
         const { kycID } = req.params;
 
-        const customer = await Kyc.findById({ kycID });
+        //Check if NIN was supplied by the user
+        if(!kycID)
+            return res.status(400).json({ message: 'Please provide the NIN' });
 
-        if(!customer)
+        const requestData = JSON.stringify({ kycID });
+
+        //Build Axios cofiguration data
+        const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: `${process.env.API_URL}/api/validateNin`,
+            headers:{
+                'Content-Type': 'application/json',
+                'Authorization': `${process.env.API_KEY}`
+            },
+            data: requestData
+        };
+
+        //Call NIBSS
+        const response = await axios.request(config);
+
+        if(!response.data)
             return res.status(404).json({ message: ' NIN does not exist' });
 
-        return res.status(200).json({ customer });
+        //Return the validated NIN
+        return res.status(200).json({ NIN: response.response.nin });
 
     }catch (error) {
+        //Check for upstream server error
+        if(error.response){
+            console.error('Provider error', error.response.status, error.response.data);
+            return res.status(502).json({
+                message: 'Error retriveing NIN information',
+                error: error.response.data
+            });
+        }
+        console.error(error);
         return res.status(500).json({ message: 'Could not validate NIN', error: error.message });
     }
 };
