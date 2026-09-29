@@ -25,5 +25,5 @@ const kycSchema = new mongoose.Schema({
     { timestamps: true }
 );
 
-const kycModel = mongoose.model('Verification', kycSchema, 'verifications');
+const kycModel = mongoose.model('Verification', kycSchema, 'identities');
 module.exports = kycModel;

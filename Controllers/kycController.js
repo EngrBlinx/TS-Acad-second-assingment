@@ -7,14 +7,14 @@ const axios = require('axios');
 exports.onboardBvn = async (req, res) => {
     try {
         //Grab the fields from the request body by destructuring
-        const { bvn, firstname, lastname, dob, phone } = req.body;
+        const { bvn, firstName, lastName, dob, phone } = req.body;
         
         //Check required fields
-        if( !bvn || !firstname || !lastname || !dob || !phone ){
+        if( !bvn || !firstName || !lastName || !dob || !phone ){
             return res.status(400).json({message: 'Please fill all required fields'});
         }
 
-        const requestData = JSON.stringify({ bvn, firstname, lastname, dob, phone });
+        const requestData = JSON.stringify({ bvn, firstName, lastName, dob, phone });
 
         //build the configuration for axios call
         const config = {
@@ -36,8 +36,15 @@ exports.onboardBvn = async (req, res) => {
         //The input data should only be other identity info like FN, LN, DOB, the the upstream server
         // returns an auto-generated bvn in the response data
 
-        ({ bvn }) = response.data;
-        return res.status(201).json({ message: 'BVN created successfully', bvn });
+        //save on local DB
+        const identity = await Kyc.create({
+            kycType: 'bvn',
+            kycID: response.data.bvn ?? bvn,
+            firstname: response.data.firstName ?? firstName,
+            lastname: response.data.lastName ?? lastName,
+            dob: response.data.dob ?? dob
+        });
+        return res.status(201).json({ message: 'BVN created successfully', identity });
 
     }catch (error) {
         if(error.response){
@@ -57,14 +64,14 @@ exports.onboardBvn = async (req, res) => {
 exports.onboardNin = async (req, res) => {
     try {
         //Grab the fields from the request body by destructuring
-        const { nin, firstname, lastname, dob, phone } = req.body;
+        const { nin, firstName, lastName, dob, phone } = req.body;
         
         //Check required fields
-        if( !bvn || !firstname || !lastname || !dob || !phone ){
+        if( !nin || !firstName || !lastName || !dob || !phone ){
             return res.status(400).json({message: 'Please fill all required fields'});
         }
 
-        const requestData = JSON.stringify({ bvn, firstname, lastname, dob, phone });
+        const requestData = JSON.stringify({ nin, firstName, lastName, dob, phone });
 
         //build the configuration for axios call
         const config = {
@@ -85,9 +92,16 @@ exports.onboardNin = async (req, res) => {
         // This line is funny, because the NIN is not supposed to be part of the input data.
         //The input data should only be other identity info like FN, LN, DOB, the the upstream server
         // returns an auto-generated NIN in the response data
-        
-        ({ nin  }) = response.data;
-        return res.status(201).json({ message: 'NIN created successfully', bvn });
+
+        //save on the local DB
+        const identity = await Kyc.create({
+            kycType: 'nin',
+            kycID: response.data.nin ?? nin,
+            firstname: response.data.firstName ?? firstName,
+            lastname: response.data.lastName ?? lastName,
+            dob: response.data.dob ?? dob
+        });
+        return res.status(201).json({ message: 'NIN created successfully', identity });
 
     }catch (error) {
         if(error.response){

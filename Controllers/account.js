@@ -32,7 +32,7 @@ exports.createAccount = async (req, res) => {
     // |  have added the now-generated account nmber, bankName, and bankCode to the KYC document,      |
     // |  which will later be used for inter-bank name enquiry during inter-bank transfers.            |
     // +-----------------------------------------------------------------------------------------------+
-        const { accountNumber, fintech: {bankCode}, fintech: {bankName} } = response.data;
+        const { accountNumber, firstName, lastName, fintech: {bankCode}, fintech: {bankName} } = response.data;
 
         if (!accountNumber) {
             return res.status(502).json({ message: 'Provider did not return an account number' });
@@ -40,9 +40,11 @@ exports.createAccount = async (req, res) => {
 
         // Save the account the provider created into our own DB
         const account = await Account.create({
+            firstName,
+            lastName,
             accountNumber,
-            bankCode: bankCode,
-            bankName: bankName,
+            bankCode,
+            bankName,
             balance: 15000,
             status: 'active'
         });

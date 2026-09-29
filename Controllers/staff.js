@@ -55,17 +55,16 @@ exports.staffLogin = async (req, res) =>{
             return res.status(401).json({ message: "Your email and password did not match"});
 
         //generate a token
-        const token = await jwt.sign({
-                id: existingStaff._id,
-                firstname: existingStaff.firstname,
-                lastname: existingStaff.lastname,
-                email: existingStaff.email,
-                role: existingStaff.role,
-                bankCode: process.env.BANK_CODE,
-                bankName: process.env.BANK_NAME
-            },
-            process.env.API_KEY,
-            process.env.API_SECRET,
+        const token = jwt.sign({
+            id: existingStaff._id,
+            firstname: existingStaff.firstname,
+            lastname: existingStaff.lastname,
+            email: existingStaff.email,
+            role: existingStaff.role
+            //bankCode: process.env.BANK_CODE,
+            //bankName: process.env.BANK_NAME
+        },
+            process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
         return res.status(201).json({ token });

@@ -8,8 +8,12 @@ dotenv.config();
 const staffRoute = require('./Routes/staff');
 app.use('/staff', staffRoute);
 
+const accountRoute = require('./Routes/account');
+app.use('/account', accountRoute);
 
-
+const kycRoute = require('./Routes/kyc');
+app.use('/bvn', kycRoute);
+app.use('/nin', kycRoute);
 
 
 const connectDB = require('./Config/dbconfig');

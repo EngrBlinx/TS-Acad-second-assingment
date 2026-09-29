@@ -10,4 +10,8 @@ const {authorize} = require('../Middleware/role');
 const accountController = require('../Controllers/account');
 
 //define the routes
-router.post('/createaccont', protect, accountController.createAccount);
+router.post('/createAccount', protect, accountController.createAccount);
+
+
+
+module.exports = router;

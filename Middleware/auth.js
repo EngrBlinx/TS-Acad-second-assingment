@@ -8,7 +8,7 @@ exports.protect = async (req, res, next) => {
         return res.status(401).json({message: 'Can\'t perform this action, invalid token'});
 
     try{
-        const decoded = await jwt.verify(token, process.env.API_KEY, process.env.API_SECRET);
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
     }catch (error){

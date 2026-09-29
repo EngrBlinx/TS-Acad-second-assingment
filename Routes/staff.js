@@ -3,6 +3,7 @@ const router = express.Router();
 
 const staffController = require('../Controllers/staff');
 
-router.post('/onboardstaff', staffController.createStaff);
+router.post('/onboard', staffController.createStaff);
+router.post('/login', staffController.staffLogin);
 
 module.exports = router;
